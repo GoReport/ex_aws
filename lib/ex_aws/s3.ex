@@ -56,7 +56,7 @@ defmodule ExAws.S3 do
 
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
-  alias Experimental.Flow
+  alias Flow
 
   @type acl_opts :: [{:acl, canned_acl} | grant]
   @type grant :: {:grant_read, grantee}
