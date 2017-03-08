@@ -16,12 +16,12 @@ defmodule ExAws.S3.Download do
   @type t :: %__MODULE__{}
 
   def get_chunk(op, %{start_byte: start_byte, end_byte: end_byte}, config) do
-    %{body: body} =
-      op.bucket
-      |> ExAws.S3.get_object(op.path, [range: "bytes=#{start_byte}-#{end_byte}"])
-      |> ExAws.request!(config)
-
-    {start_byte, body}
+    case op.bucket |> ExAws.S3.get_object(op.path, [range: "bytes=#{start_byte}-#{end_byte}"]) |> ExAws.request(config) do
+      {:ok, %{body: body}} ->
+        {start_byte, body}
+      {:error, _} = error ->
+        error
+    end
   end
 
   def build_chunk_stream(op, config) do
@@ -30,6 +30,7 @@ defmodule ExAws.S3.Download do
     |> chunk_stream(op.chunk_size)
   end
 
+  def chunk_stream({:error, _} = error, _), do: error
   def chunk_stream(file_size, chunk_size) do
     Stream.unfold(0, fn counter ->
       start_byte = counter * chunk_size
@@ -49,12 +50,15 @@ defmodule ExAws.S3.Download do
   end
 
   defp get_file_size(bucket, path, config) do
-    %{headers: headers} = ExAws.S3.head_object(bucket, path) |> ExAws.request!(config)
-
-    headers
-    |> List.keyfind("Content-Length", 0, nil)
-    |> elem(1)
-    |> String.to_integer
+    case ExAws.S3.head_object(bucket, path) |> ExAws.request(config) do
+      {:ok, %{headers: headers}} ->
+        headers
+        |> List.keyfind("Content-Length", 0, nil)
+        |> elem(1)
+        |> String.to_integer
+      {:error, _} = error ->
+        error
+    end
   end
 end
 
@@ -66,18 +70,22 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
     init_file = fn -> File.open!(op.dest, [:write, :raw, :delayed_write, :binary]) end
 
     write_chunk = fn chunks, file ->
-      :ok = :file.pwrite(file, [chunks])
-      file
+        :ok = :file.pwrite(file, [chunks])
+        file
     end
 
-    op
-    |> Download.build_chunk_stream(config)
-    |> Flow.from_enumerable(stages: op.opts[:max_concurrency] || 8, max_demand: 2)
-    |> Flow.map(&Download.get_chunk(op, &1, config))
-    |> Flow.reduce(init_file, write_chunk)
-    |> Flow.run
+    case Download.build_chunk_stream(op, config) do
+      {:error, _} = error ->
+        error
+      result ->
+        result
+        |> Flow.from_enumerable(stages: op.opts[:max_concurrency] || 8, max_demand: 2)
+        |> Flow.map(&Download.get_chunk(op, &1, config))
+        |> Flow.reduce(init_file, write_chunk)
+        |> Flow.run
 
-    {:ok, :done}
+        {:ok, :done}
+    end
   end
 
   def stream!(_op, _config) do
