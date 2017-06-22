@@ -35,7 +35,7 @@ defmodule ExAws.Mixfile do
     [
       {:sweet_xml, "~> 0.6", optional: true},
       {:ex_doc, "~> 0.14", only: :dev},
-      {:hackney, "~> 1.6.5", optional: true},
+      {:hackney, "1.6.5 or 1.7.1 or 1.8.0 or 1.8.6", optional: true},
       {:poison, ">= 1.2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
       {:flow, "~> 0.11"},
