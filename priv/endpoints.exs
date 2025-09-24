@@ -177,7 +177,9 @@ chime_voice_regions = [
             "eu-north-1" => %{},
             "eu-south-1" => %{},
             "eu-south-2" => %{},
-            "eu-west-1" => %{},
+            "eu-west-1" => %{
+              "hostname" => "bedrock-runtime.eu-west-1.amazonaws.com"
+            },
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "sa-east-1" => %{},
@@ -197,7 +199,9 @@ chime_voice_regions = [
             "ap-southeast-2" => %{},
             "ca-central-1" => %{},
             "eu-central-1" => %{},
-            "eu-west-1" => %{},
+            "eu-west-1" => %{
+              "hostname" => "bedrock-agent.eu-west-1.amazonaws.com"
+            },
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "sa-east-1" => %{},
@@ -214,7 +218,9 @@ chime_voice_regions = [
             "ap-southeast-2" => %{},
             "ca-central-1" => %{},
             "eu-central-1" => %{},
-            "eu-west-1" => %{},
+            "eu-west-1" => %{
+              "hostname" => "bedrock-agent-runtime.eu-west-1.amazonaws.com"
+            },
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "sa-east-1" => %{},
