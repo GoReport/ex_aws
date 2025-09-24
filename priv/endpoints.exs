@@ -189,7 +189,7 @@ chime_voice_regions = [
           }
         },
         "bedrock-agent" => %{
-          "defaults" => %{"credentialScope" => %{"service" => "bedrock-agent"}},
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
           "endpoints" => %{
             "ap-northeast-1" => %{},
             "ap-south-1" => %{},
